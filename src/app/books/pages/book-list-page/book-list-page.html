@@ -1,0 +1,27 @@
+<header class="page-header">
+  <h1>Libros</h1>
+</header>
+
+@if (loading()) {
+  <div class="loading">
+    <mat-spinner diameter="40" />
+  </div>
+} @else {
+  <div class="grid">
+    @for (book of books(); track book.id) {
+      <mat-card appearance="outlined" class="book-card">
+        <mat-card-header>
+          <mat-card-title>{{ book.title }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="description">{{ book.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button [routerLink]="[book.id]">Ver detalle</a>
+        </mat-card-actions>
+      </mat-card>
+    } @empty {
+      <p class="empty">No hay libros para mostrar.</p>
+    }
+  </div>
+}
