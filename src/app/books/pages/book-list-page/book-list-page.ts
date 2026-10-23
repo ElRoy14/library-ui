@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { filter, finalize, Observable, switchMap } from 'rxjs';
+import { filter, finalize, Observable, of, switchMap } from 'rxjs';
 import { ConfirmDialogService } from '../../../Shared/confirm-dialog/confirm-dialog.service';
 import { BookFormDialog, BookFormDialogData } from '../../components/book-form-dialog/book-form-dialog';
 import { Book, BookRequest } from '../../models/book';
@@ -34,12 +34,17 @@ export class BookListPage implements OnInit {
 
   protected readonly books = signal<Book[]>([]);
   protected readonly loading = signal(true);
+  private readonly localBookIds = signal(new Set<number>());
 
   ngOnInit(): void {
     this.bookService
       .getAll()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe(books => this.books.set(books));
+  }
+
+  protected isLocal(book: Book): boolean {
+    return this.localBookIds().has(book.id);
   }
 
   protected addBook(): void {
@@ -49,7 +54,9 @@ export class BookListPage implements OnInit {
         switchMap(request => this.bookService.create(request))
       )
       .subscribe(created => {
-        this.books.update(books => [created, ...books]);
+        const book = { ...created, id: this.nextLocalId() };
+        this.localBookIds.update(ids => new Set(ids).add(book.id));
+        this.books.update(books => [book, ...books]);
         this.notify('Libro agregado.');
       });
   }
@@ -58,11 +65,13 @@ export class BookListPage implements OnInit {
     this.openFormDialog(book)
       .pipe(
         filter((request): request is BookRequest => !!request),
-        switchMap(request => this.bookService.update(book.id, request))
+        switchMap(request =>
+          this.isLocal(book) ? of({ ...request, id: book.id }) : this.bookService.update(book.id, request)
+        )
       )
       .subscribe(updated => {
         this.books.update(books =>
-          books.map(current => (current.id === book.id ? updated : current))
+          books.map(current => (current.id === book.id ? { ...updated, id: book.id } : current))
         );
         this.notify('Libro actualizado.');
       });
@@ -73,10 +82,15 @@ export class BookListPage implements OnInit {
       .confirm({ title: 'Eliminar libro', message: `¿Seguro que deseas eliminar "${book.title}"?` })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.bookService.delete(book.id))
+        switchMap(() => (this.isLocal(book) ? of(undefined) : this.bookService.delete(book.id)))
       )
       .subscribe(() => {
         this.books.update(books => books.filter(current => current.id !== book.id));
+        this.localBookIds.update(ids => {
+          const remaining = new Set(ids);
+          remaining.delete(book.id);
+          return remaining;
+        });
         this.notify('Libro eliminado.');
       });
   }
@@ -92,5 +106,9 @@ export class BookListPage implements OnInit {
 
   private notify(message: string): void {
     this.snackBar.open(message, 'Cerrar', { duration: 3000 });
+  }
+
+  private nextLocalId(): number {
+    return Math.max(0, ...this.books().map(book => book.id)) + 1;
   }
 }
