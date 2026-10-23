@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar libro' : 'Agregar libro' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="form">
+    <mat-form-field>
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="title" />
+      @if (form.controls.title.hasError('required')) {
+        <mat-error>El título es obligatorio.</mat-error>
+      }
+      @if (form.controls.title.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Descripción</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      @if (form.controls.description.hasError('maxlength')) {
+        <mat-error>Máximo 2000 caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field>
+        <mat-label>Número de páginas</mat-label>
+        <input matInput type="number" min="1" formControlName="pageCount" />
+        @if (form.controls.pageCount.hasError('required')) {
+          <mat-error>El número de páginas es obligatorio.</mat-error>
+        }
+        @if (form.controls.pageCount.hasError('min')) {
+          <mat-error>Debe tener al menos una página.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Fecha de publicación</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="publishDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+        @if (form.controls.publishDate.hasError('matDatepickerParse')) {
+          <mat-error>La fecha no es válida.</mat-error>
+        } @else if (form.controls.publishDate.hasError('required')) {
+          <mat-error>La fecha es obligatoria.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field>
+      <mat-label>Fragmento</mat-label>
+      <textarea matInput formControlName="excerpt" rows="3"></textarea>
+      @if (form.controls.excerpt.hasError('maxlength')) {
+        <mat-error>Máximo 2000 caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button type="submit">Guardar</button>
+  </mat-dialog-actions>
+</form>
