@@ -1,59 +1,45 @@
-# LibraryUi
+# Library UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.5.
+Aplicación en Angular para gestionar libros y autores. Consume [library-api](https://github.com/ElRoy14/library-api), que a su vez funciona como proxy de [FakeRestAPI](https://fakerestapi.azurewebsites.net/index.html).
 
-## Development server
+## Requisitos
 
-To start a local development server, run:
+- [Node.js](https://nodejs.org/) 22 LTS o superior
+- [library-api](https://github.com/ElRoy14/library-api) corriendo en `https://localhost:7100`
 
-```bash
-ng serve
-```
+## Cómo ejecutarlo
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Primero levanta el backend siguiendo su README. Luego:
 
 ```bash
-ng generate component component-name
+git clone https://github.com/ElRoy14/library-ui.git
+cd library-ui
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+La aplicación queda en `http://localhost:4200`.
 
-```bash
-ng generate --help
+## Funcionalidades
+
+- **Libros:** lista con título y descripción, detalle con sus autores, y opciones para agregar, editar y eliminar.
+- **Autores:** tabla paginada con nombre y número de libros publicados, y opciones para agregar, editar y eliminar. Al crear o editar un autor, el libro se elige de una lista.
+
+## Estructura
+
+```
+src/app/
+├── core/       interceptor de errores HTTP
+├── shared/     diálogo de confirmación
+├── books/      feature de libros
+└── authors/    feature de autores
 ```
 
-## Building
+Cada feature tiene sus propias carpetas de `models`, `services`, `pages` y `components`, y se carga con lazy loading desde `app.routes.ts`.
 
-To build the project run:
+Algunas decisiones:
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Componentes standalone y estado con signals.
+- Los formularios están en diálogos y solo devuelven los datos ingresados. La página que los abre se encarga de llamar a la API y actualizar la lista.
+- Los errores HTTP se manejan en un solo interceptor, que muestra un mensaje según el código de respuesta.
+- Angular Material es la única librería de UI. El paginador conserva sus textos por defecto, en inglés.
