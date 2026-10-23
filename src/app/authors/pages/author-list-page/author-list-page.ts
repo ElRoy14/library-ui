@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { filter, finalize, Observable, switchMap } from 'rxjs';
+import { filter, finalize, Observable, of, switchMap } from 'rxjs';
 import { ConfirmDialogService } from '../../../Shared/confirm-dialog/confirm-dialog.service';
 import { AuthorFormDialog, AuthorFormDialogData } from '../../components/author-form-dialog/author-form-dialog';
 import { Author, AuthorRequest } from '../../models/author';
@@ -35,6 +35,7 @@ export class AuthorListPage implements OnInit {
   protected readonly columns = ['name', 'booksCount', 'actions'];
   protected readonly authors = signal<Author[]>([]);
   protected readonly loading = signal(true);
+  private readonly localAuthorIds = signal(new Set<number>());
   protected readonly pageIndex = signal(0);
   protected readonly pageSize = signal(10);
 
@@ -62,7 +63,9 @@ export class AuthorListPage implements OnInit {
         switchMap(request => this.authorService.create(request))
       )
       .subscribe(created => {
-        this.authors.update(authors => [created, ...authors]);
+        const author = { ...created, id: this.nextLocalId() };
+        this.localAuthorIds.update(ids => new Set(ids).add(author.id));
+        this.authors.update(authors => [author, ...authors]);
         this.pageIndex.set(0);
         this.notify('Autor agregado.');
       });
@@ -72,11 +75,15 @@ export class AuthorListPage implements OnInit {
     this.openFormDialog(author)
       .pipe(
         filter((request): request is AuthorRequest => !!request),
-        switchMap(request => this.authorService.update(author.id, request))
+        switchMap(request =>
+          this.isLocal(author)
+            ? of({ ...author, ...request, fullName: `${request.firstName} ${request.lastName}` })
+            : this.authorService.update(author.id, request)
+        )
       )
       .subscribe(updated => {
         this.authors.update(authors =>
-          authors.map(current => (current.id === author.id ? updated : current))
+          authors.map(current => (current.id === author.id ? { ...updated, id: author.id } : current))
         );
         this.notify('Autor actualizado.');
       });
@@ -87,10 +94,15 @@ export class AuthorListPage implements OnInit {
       .confirm({ title: 'Eliminar autor', message: `¿Seguro que deseas eliminar a "${author.fullName}"?` })
       .pipe(
         filter(Boolean),
-        switchMap(() => this.authorService.delete(author.id))
+        switchMap(() => (this.isLocal(author) ? of(undefined) : this.authorService.delete(author.id)))
       )
       .subscribe(() => {
         this.authors.update(authors => authors.filter(current => current.id !== author.id));
+        this.localAuthorIds.update(ids => {
+          const remaining = new Set(ids);
+          remaining.delete(author.id);
+          return remaining;
+        });
         this.keepPageInRange();
         this.notify('Autor eliminado.');
       });
@@ -114,5 +126,13 @@ export class AuthorListPage implements OnInit {
 
   private notify(message: string): void {
     this.snackBar.open(message, 'Cerrar', { duration: 3000 });
+  }
+
+  private isLocal(author: Author): boolean {
+    return this.localAuthorIds().has(author.id);
+  }
+
+  private nextLocalId(): number {
+    return Math.max(0, ...this.authors().map(author => author.id)) + 1;
   }
 }
