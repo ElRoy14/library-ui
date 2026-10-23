@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar autor' : 'Agregar autor' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="form">
+    <div class="row">
+      <mat-form-field>
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="firstName" />
+        @if (form.controls.firstName.hasError('required')) {
+          <mat-error>El nombre es obligatorio.</mat-error>
+        }
+        @if (form.controls.firstName.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Apellido</mat-label>
+        <input matInput formControlName="lastName" />
+        @if (form.controls.lastName.hasError('required')) {
+          <mat-error>El apellido es obligatorio.</mat-error>
+        }
+        @if (form.controls.lastName.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field>
+      <mat-label>Libro</mat-label>
+      <mat-select formControlName="idBook">
+        @for (book of books(); track book.id) {
+          <mat-option [value]="book.id">{{ book.title }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.idBook.hasError('required')) {
+        <mat-error>Selecciona un libro.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button type="submit">Guardar</button>
+  </mat-dialog-actions>
+</form>
