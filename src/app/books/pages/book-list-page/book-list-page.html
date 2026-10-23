@@ -1,5 +1,9 @@
 <header class="page-header">
   <h1>Libros</h1>
+    <button mat-flat-button (click)="addBook()">
+      <mat-icon>add</mat-icon>
+      Agregar libro
+    </button>
 </header>
 
 @if (loading()) {
