@@ -1,0 +1,29 @@
+.back {
+  margin-bottom: 16px;
+}
+
+section {
+  margin-top: 24px;
+
+  h2 {
+    margin: 0 0 8px;
+    font: var(--mat-sys-title-medium);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+blockquote {
+  margin: 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--mat-sys-outline-variant);
+  font-style: italic;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.empty-text {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}

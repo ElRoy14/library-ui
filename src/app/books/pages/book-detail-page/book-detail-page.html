@@ -1,0 +1,46 @@
+<a mat-button routerLink="/books" class="back">
+  <mat-icon>arrow_back</mat-icon>
+  Volver a libros
+</a>
+
+@if (loading()) {
+  <div class="loading">
+    <mat-spinner diameter="40" />
+  </div>
+} @else {
+  @if (book(); as book) {
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>{{ book.title }}</mat-card-title>
+        <mat-card-subtitle>
+          Publicado el {{ book.publishDate | date: 'longDate' }} · {{ book.pageCount }} páginas
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <section>
+          <h2>Autores</h2>
+          <mat-chip-set>
+            @for (author of book.authors; track author.id) {
+              <mat-chip>{{ author.fullName }}</mat-chip>
+            } @empty {
+              <p class="empty-text">Este libro no tiene autores registrados.</p>
+            }
+          </mat-chip-set>
+        </section>
+
+        <section>
+          <h2>Descripción</h2>
+          <p>{{ book.description }}</p>
+        </section>
+
+        <section>
+          <h2>Fragmento</h2>
+          <blockquote>{{ book.excerpt }}</blockquote>
+        </section>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <p class="empty">No se encontró el libro.</p>
+  }
+}
