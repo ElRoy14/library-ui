@@ -1,0 +1,53 @@
+<header class="page-header">
+  <h1>Autores</h1>
+  <button mat-flat-button (click)="addAuthor()">
+    <mat-icon>add</mat-icon>
+    Agregar autor
+  </button>
+</header>
+
+@if (loading()) {
+  <div class="loading">
+    <mat-spinner diameter="40" />
+  </div>
+} @else {
+  <div class="table-container">
+    <table mat-table [dataSource]="pagedAuthors()">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let author">{{ author.fullName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="booksCount">
+        <th mat-header-cell *matHeaderCellDef>Libros publicados</th>
+        <td mat-cell *matCellDef="let author">{{ author.booksCount }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let author" class="actions-cell">
+          <button mat-icon-button matTooltip="Editar" aria-label="Editar autor" (click)="editAuthor(author)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button matTooltip="Eliminar" aria-label="Eliminar autor" (click)="deleteAuthor(author)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+
+      <tr class="mat-mdc-row" *matNoDataRow>
+        <td class="mat-mdc-cell empty" [attr.colspan]="columns.length">No hay autores para mostrar.</td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="authors().length"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 25, 50]"
+      (page)="changePage($event)" />
+  </div>
+}
