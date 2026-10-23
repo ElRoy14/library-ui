@@ -1,1 +1,11 @@
-<router-outlet />
+<mat-toolbar class="toolbar">
+  <span class="brand">Library</span>
+  <nav class="nav">
+    <a mat-button routerLink="/books" routerLinkActive="active">Libros</a>
+    <a mat-button routerLink="/authors" routerLinkActive="active">Autores</a>
+  </nav>
+</mat-toolbar>
+
+<main class="container">
+  <router-outlet />
+</main>

@@ -1,0 +1,22 @@
+.toolbar {
+  gap: 24px;
+}
+
+.brand {
+  font-weight: 500;
+}
+
+.nav {
+  display: flex;
+  gap: 8px;
+}
+
+.active {
+  background-color: var(--mat-sys-secondary-container);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
