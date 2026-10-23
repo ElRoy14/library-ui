@@ -1,9 +1,9 @@
 <header class="page-header">
   <h1>Libros</h1>
-    <button mat-flat-button (click)="addBook()">
-      <mat-icon>add</mat-icon>
-      Agregar libro
-    </button>
+  <button mat-flat-button (click)="addBook()">
+    <mat-icon>add</mat-icon>
+    Agregar libro
+  </button>
 </header>
 
 @if (loading()) {
@@ -20,8 +20,15 @@
         <mat-card-content>
           <p class="description">{{ book.description }}</p>
         </mat-card-content>
-        <mat-card-actions>
+        <mat-card-actions class="actions">
           <a mat-button [routerLink]="[book.id]">Ver detalle</a>
+          <span class="spacer"></span>
+          <button mat-icon-button matTooltip="Editar" aria-label="Editar libro" (click)="editBook(book)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button matTooltip="Eliminar" aria-label="Eliminar libro" (click)="deleteBook(book)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </mat-card-actions>
       </mat-card>
     } @empty {
